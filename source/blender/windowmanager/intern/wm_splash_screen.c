@@ -205,12 +205,14 @@ static uiBlock *wm_block_create_splash(bContext *C, ARegion *region, void *UNUSE
 
   /* Would be nice to support caching this, so it only has to be re-read (and likely resized) on
    * first draw or if the image changed. */
+  /* ACON TASK
   ImBuf *ibuf = wm_block_splash_image(splash_width, &splash_height);
 
   uiBut *but = uiDefButImage(
       block, ibuf, 0, 0.5f * U.widget_unit, splash_width, splash_height, NULL);
 
   UI_but_func_set(but, wm_block_close, block, NULL);
+  */
 
   wm_block_splash_add_label(
       block, BKE_blender_version_string(), splash_width, splash_height - 13.0 * U.dpi_fac);
@@ -234,17 +236,17 @@ static uiBlock *wm_block_create_splash(bContext *C, ARegion *region, void *UNUSE
     BLI_path_join(userpref, sizeof(userpref), cfgdir, BLENDER_USERPREF_FILE, NULL);
   }
 
-  /* Draw setup screen if no preferences have been saved yet. */
+  /* ACON TASK
   if (!BLI_exists(userpref)) {
     mt = WM_menutype_find("WM_MT_splash_quick_setup", true);
-
-    /* The UI_BLOCK_QUICK_SETUP flag prevents the button text from being left-aligned,
-       as it is for all menus due to the UI_BLOCK_LOOP flag, see in 'ui_def_but'. */
     UI_block_flag_enable(block, UI_BLOCK_QUICK_SETUP);
   }
   else {
     mt = WM_menutype_find("WM_MT_splash", true);
   }
+  */
+
+  mt = WM_menutype_find("WM_MT_splash", true);
 
   if (mt) {
     UI_menutype_draw(C, mt, layout);

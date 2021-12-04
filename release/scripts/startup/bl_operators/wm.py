@@ -18,6 +18,7 @@
 
 # <pep8 compliant>
 from __future__ import annotations
+from datetime import tzinfo
 
 import bpy
 from bpy.types import (
@@ -2605,6 +2606,9 @@ class WM_MT_splash_quick_setup(Menu):
     bl_label = "Quick Setup"
 
     def draw(self, context):
+        # ACON TASK
+        WM_MT_splash.draw(context)
+        """
         wm = context.window_manager
         # prefs = context.preferences
 
@@ -2691,11 +2695,36 @@ class WM_MT_splash_quick_setup(Menu):
 
         layout.separator()
         layout.separator()
+        """
 
 
 class WM_MT_splash(Menu):
+    # ACON TASK
     bl_label = "Splash"
 
+    def get_weather(self, city: str):
+        import requests
+        from datetime import datetime
+
+        unit = "metric"
+        api_key = "c4e745ba04e7c45466c808e3e7f366bd"
+        day = datetime.now().strftime("%Y.%m.%d")
+
+        api_query = f"http://api.openweathermap.org/data/2.5/weather?q={city}&unit={unit}&appid={api_key}"
+        
+        response = requests.get(api_query)
+        if response.status_code == 200:
+            res = response.json()
+            weather = res["weather"][0]["main"]
+            temp = res["main"]["temp"]
+            
+            return {
+                "day": day,
+                "city": city,
+                "weather": weather, 
+                "temp": round(temp-272.15, 2)
+            }
+            
     def draw(self, context):
         layout = self.layout
         layout.operator_context = 'EXEC_DEFAULT'
@@ -2703,6 +2732,49 @@ class WM_MT_splash(Menu):
 
         split = layout.split()
 
+        col1 = split.column()
+        col1_title = col1.row()
+        col1_title.label(text="Today's Weather")
+        
+        weather_table = col1.row()
+
+        day = weather_table.column()
+        row1 = day.row()
+        row1.label(text="Day")
+
+        city = weather_table.column()
+        row2 = city.row()
+        row2.label(text="City")
+
+        wea = weather_table.column()
+        row3 = wea.row()
+        row3.label(text="Weather Now")
+
+        temp = weather_table.column()
+        row4 = temp.row()
+        row4.label(text="Temperature")
+
+        for city_name in ["Seoul", "Busan", "Jeju", "Tokyo", "Beijing"]:
+            weather = self.get_weather(city_name)
+            row5 = day.row()
+            row5.label(text=weather["day"])
+
+            row6 = city.row()
+            row6.label(text=city_name)
+
+            row7 = wea.row()
+            row7.label(text=weather["weather"])
+
+            row8 = temp.row()
+            row8.label(text=f'{weather["temp"]} °C')
+
+        row9 = col1.row()
+        row9.label(text="brought to you by ACON3D")
+
+        layout.separator()
+
+        
+        """
         # Templates
         col1 = split.column()
         col1.label(text="New File")
@@ -2743,6 +2815,7 @@ class WM_MT_splash(Menu):
 
         layout.separator()
         layout.separator()
+        """
 
 
 class WM_MT_splash_about(Menu):
